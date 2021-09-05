@@ -230,6 +230,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: awscli install
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3
+            sudo apt-get -qq install awscli
+      - run:
           name: Run migrations
           command: |
             cd backend
