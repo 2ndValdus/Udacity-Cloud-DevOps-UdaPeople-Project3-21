@@ -262,17 +262,17 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            cd frontend
-            sudo npm install webpack-dev-server -g
-            sudo npm install
+            sudo apt-get install python-pip curl
+            sudo pip install awscli
+            yum -y install tar gzip
+            cd frontend 
+            npm install
       - run:
           name: Get backend url
           command: |
@@ -280,11 +280,14 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" >> "frontend/.env"
       - run:
-          name: Deploy frontend objects
+          name: Deploy frontend
           command: |
             cd frontend
             npm install
             npm run build
+      - run:
+          name: Move files to S3 bucket
+          command: |
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
